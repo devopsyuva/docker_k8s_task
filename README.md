@@ -18,3 +18,6 @@ Docker task:
     HEALTHCHECK
     EXPOSE
     VOLUME
+7. Intigrate NFS storage to backend volume mount in Docker
+8. Use disk as backend storage for volume mount.
+9. Deploy local-registry with TLS (443) certs.
