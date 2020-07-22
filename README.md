@@ -19,5 +19,9 @@ Docker task:
     EXPOSE
     VOLUME
 7. Intigrate NFS storage to backend volume mount in Docker
-8. Use disk as backend storage for volume mount.
+8. Use disk (Example: /dev/sdb) as backend storage for volume mount.
 9. Deploy local-registry with TLS (443) certs.
+10. Deploy web application (Wordpress) and DB (MariaDB). We need to create a simple web site with the wordpress from browser and verify that details are stored in wordpress DB.
+11. Deploy Jenkins CICD with custom parameters mentioned below:
+Jenkins should have docker and kubernetes plugin installed as a prerequesit.(Should not be done through jenkins dashboard) --> Dockerfile
+Setup jenkins with skipWizard and we should login with our username and password defined in Dockerfile. So that I can login to dashboard directly when I access URL.
