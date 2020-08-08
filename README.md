@@ -4,7 +4,7 @@ Docker task:
 2. Configure docker0 bridge interface subnet with different CIDR like “172.30.20.0/24”.
 3. Change the default docker0 bridge to any other bridge network for containers created.
 4. Connect Docker host (daemon) from remote server (docker client).
-5. Investigate on --ink option.
+5. Investigate on --link option.
 6. Build your own custom image for nginx with below options covered in your Dockerfile:
     FROM
     RUN
