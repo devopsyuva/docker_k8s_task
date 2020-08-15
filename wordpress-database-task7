@@ -1,0 +1,60 @@
+Lets create a DB container with proper env variables like password and host:
+
+root@ubuntuserverdemo:~# docker container run -d --name mysql-server -e MYSQL_ROOT_PASSWORD=test1234 -e MYSQL_ROOT_HOST=% -v mysql_data:/var/lib/mysql -p 3306:3306 mariadb
+Unable to find image 'mariadb:latest' locally
+latest: Pulling from library/mariadb
+3ff22d22a855: Pull complete 
+e7cb79d19722: Pull complete 
+323d0d660b6a: Pull complete 
+b7f616834fd0: Pull complete 
+78ed0160f03e: Pull complete 
+a122e9306ac4: Pull complete 
+673e89352b19: Pull complete 
+caf1e694359b: Pull complete 
+04f5e4f6ead3: Pull complete 
+a41772aadb3d: Pull complete 
+ca25bbc109b2: Pull complete 
+0aff1f953b69: Pull complete 
+41321435eb1c: Pull complete 
+Digest: sha256:273369dddb8430bf5e46fb4ed163e83316f82ef2a05a9a5bea27cc7fbc7cdf07
+Status: Downloaded newer image for mariadb:latest
+a9045fa6acb80bcc1b90e8d44984f9f43f0d72156ceaac2d6b83e8d1bc349c4a
+root@ubuntuserverdemo:~# docker ps
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                    NAMES
+a9045fa6acb8        mariadb             "docker-entrypoint.s…"   14 seconds ago      Up 8 seconds        0.0.0.0:3306->3306/tcp   mysql-server
+root@ubuntuserverdemo:~#
+
+root@ubuntuserverdemo:~# docker container run -d --restart=always -e WORDPRESS_DB_HOST=10.0.2.15:3306 -e WORDPRESS_DB_USER=root -e WORDPRESS_DB_PASSWORD=test1234 -p8090:80 wordpress
+Unable to find image 'wordpress:latest' locally
+latest: Pulling from library/wordpress
+bf5952930446: Pull complete 
+a409b57eb464: Pull complete 
+3192e6c84ad0: Pull complete 
+43553740162b: Pull complete 
+d8b8bba42dea: Pull complete 
+eb10907c0110: Pull complete 
+10568906f34e: Pull complete 
+03fe17709781: Pull complete 
+98171b7166c8: Pull complete 
+3978c2fb05b8: Pull complete 
+71bf21524fa8: Pull complete 
+24fe81782f1c: Pull complete 
+7a2dfd067aa5: Pull complete 
+a04586f4f8fe: Pull complete 
+b8059b10e448: Pull complete 
+e5b4db4a14b4: Pull complete 
+48018c17c4e9: Pull complete 
+d09f106f9e16: Pull complete 
+289a459a6137: Pull complete 
+c4e8f9c90fda: Pull complete 
+Digest: sha256:6da8f886b20632dd05eeb22462f850a38e30600cedd894d2c6b1eb1a58e9763c
+Status: Downloaded newer image for wordpress:latest
+822cabc271a3e2bd36b19488703ac002911ce465e3a9b255841f705bd65e6902
+root@ubuntuserverdemo:~# 
+root@ubuntuserverdemo:~# docker ps
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                    NAMES
+822cabc271a3        wordpress           "docker-entrypoint.s…"   14 minutes ago      Up 14 minutes       0.0.0.0:8090->80/tcp     suspicious_grothendieck
+a9045fa6acb8        mariadb             "docker-entrypoint.s…"   29 minutes ago      Up 29 minutes       0.0.0.0:3306->3306/tcp   mysql-serverroot@ubuntuserverdemo:~# eh
+
+
+
