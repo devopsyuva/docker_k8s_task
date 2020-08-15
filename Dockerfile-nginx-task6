@@ -1,0 +1,81 @@
+root@ubuntuserverdemo:~/dockerfiles# cat Dockerfile 
+ARG VERSION=18.04
+FROM ubuntu:{VERSION}
+MAINTAINER sudhams reddy duba<dubareddy.383@gmail.com>
+ENV DEBAIN_FRONTEND=noninteractive
+RUN apt-get update && \
+    apt-get install -y iproute2 nginx curl
+COPY index.html /usr/share/nginx/html/
+VOLUME /usr/share/nginx/html
+EXPOSE 80
+ENTRYPOINT ["nginx"]
+CMD ["-g", "daemon off;"]
+HEALTHCHECK CMD curl --fail http://localhost:80/ || exit 1
+root@ubuntuserverdemo:~/dockerfiles# 
+root@ubuntuserverdemo:~/dockerfiles# cat index.html 
+Welcome to custom image build through Dockerfile
+root@ubuntuserverdemo:~/dockerfiles# 
+
+Now using above Dockerfile build image with name "dubareddy/nginx:latest" since I want to push to my docker hub repo.
+
+root@ubuntuserverdemo:~/dockerfiles# docker build -t dubareddy/nginx:latest .
+Sending build context to Docker daemon  3.072kB
+Step 1/11 : ARG VERSION=18.04
+Step 2/11 : FROM ubuntu:${VERSION}
+ ---> 2eb2d388e1a2
+Step 3/11 : MAINTAINER sudhams reddy duba<dubareddy.383@gmail.com>
+ ---> Using cache
+ ---> b51992d37e78
+Step 4/11 : ENV DEBAIN_FRONTEND=noninteractive
+ ---> Using cache
+ ---> 3db144a307e8
+Step 5/11 : RUN apt-get update &&     apt-get install -y iproute2 nginx curl
+ ---> Running in 5835f8f8d4e2
+Get:1 http://archive.ubuntu.com/ubuntu bionic InRelease [242 kB]
+Get:2 http://security.ubuntu.com/ubuntu bionic-security InRelease [88.7 kB]
+...
+...
+...
+done.
+Removing intermediate container 5835f8f8d4e2
+ ---> 174dcea3919a
+Step 6/11 : COPY index.html /usr/share/nginx/html/
+ ---> 277cb1655ccc
+Step 7/11 : VOLUME /usr/share/nginx/html
+ ---> Running in 1aa748a8e7d8
+Removing intermediate container 1aa748a8e7d8
+ ---> b1eb1821e589
+Step 8/11 : EXPOSE 80
+ ---> Running in 98ade933649c
+Removing intermediate container 98ade933649c
+ ---> 7971969e1f8b
+Step 9/11 : ENTRYPOINT ["nginx"]
+ ---> Running in 514a19694e06
+Removing intermediate container 514a19694e06
+ ---> 48d74c610d21
+Step 10/11 : CMD ["-g", "daemon off;"]
+ ---> Running in 6bd6d973e542
+Removing intermediate container 6bd6d973e542
+ ---> eb15a5ea8bd7
+Step 11/11 : HEALTHCHECK CMD curl --fail http://localhost:80/ || exit 1
+ ---> Running in af152e5d4745
+Removing intermediate container af152e5d4745
+ ---> c3835dd64b80
+Successfully built c3835dd64b80
+Successfully tagged dubareddy/nginx:latest
+
+root@ubuntuserverdemo:~/dockerfiles# docker container run -d --name customnginx -p8090:80 dubareddy/nginx:latest 
+5aa46a506ed2746dca6092b4d1b63d3ac7a728e46991aaf93a46c642a9d4b2b6
+root@ubuntuserverdemo:~/dockerfiles# 
+root@ubuntuserverdemo:~/dockerfiles# docker ps
+CONTAINER ID        IMAGE                    COMMAND                  CREATED             STATUS                           PORTS                  NAMES
+5aa46a506ed2        dubareddy/nginx:latest   "nginx -g 'daemon of…"   2 seconds ago       Up 1 second (health: starting)   0.0.0.0:8090->80/tcp   customnginx
+root@ubuntuserverdemo:~/dockerfiles# 
+root@ubuntuserverdemo:~/dockerfiles# 
+root@ubuntuserverdemo:~/dockerfiles# docker container inspect --format "{{ .NetworkSettings.IPAddress }}" customnginx 
+172.30.10.2
+root@ubuntuserverdemo:~/dockerfiles# curl 172.30.10.2
+Welcome to custom image build through Dockerfile
+root@ubuntuserverdemo:~/dockerfiles#
+
+
