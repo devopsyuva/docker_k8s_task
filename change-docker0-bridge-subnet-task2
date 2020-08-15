@@ -1,0 +1,33 @@
+root@ubuntuserverdemo:~# docker container run -d --name testnginx nginx:1.19.0
+Unable to find image 'nginx:1.19.0' locally
+1.19.0: Pulling from library/nginx
+8559a31e96f4: Pull complete 
+8d69e59170f7: Pull complete 
+3f9f1ec1d262: Pull complete 
+d1f5ff4f210d: Pull complete 
+1e22bfa8652e: Pull complete 
+Digest: sha256:21f32f6c08406306d822a0e6e8b7dc81f53f336570e852e25fbe1e3e3d0d0133
+Status: Downloaded newer image for nginx:1.19.0
+2e5ce73814c61b23f6c48d6b5f60a88f280b24976cbd4e0a3afca78e82816c6e
+root@ubuntuserverdemo:~# docker container ps
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS               NAMES
+2e5ce73814c6        nginx:1.19.0        "/docker-entrypoint.…"   11 seconds ago      Up 3 seconds        80/tcp              testnginx
+root@ubuntuserverdemo:~# 
+root@ubuntuserverdemo:~# 
+root@ubuntuserverdemo:~# docker container inspect --format "{{ .NetworkSettings.IPAddress }}" testnginx 
+172.30.1.2
+root@ubuntuserverdemo:~# 
+root@ubuntuserverdemo:~# curl -I 172.30.1.2
+HTTP/1.1 200 OK
+Server: nginx/1.19.0
+Date: Sat, 15 Aug 2020 12:15:30 GMT
+Content-Type: text/html
+Content-Length: 612
+Last-Modified: Tue, 26 May 2020 15:00:20 GMT
+Connection: keep-alive
+ETag: "5ecd2f04-264"
+Accept-Ranges: bytes
+
+root@ubuntuserverdemo:~#
+
+we can see that container IP address was picked from the new subnet.
