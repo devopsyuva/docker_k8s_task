@@ -1,0 +1,150 @@
+root@ubuntuserverdemo:~# ip a
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: enp0s3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 08:00:27:b8:22:b6 brd ff:ff:ff:ff:ff:ff
+    inet 10.0.2.15/24 brd 10.0.2.255 scope global dynamic enp0s3
+       valid_lft 86294sec preferred_lft 86294sec
+    inet6 fe80::a00:27ff:feb8:22b6/64 scope link 
+       valid_lft forever preferred_lft forever
+3: docker0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN group default 
+    link/ether 02:42:7c:24:e3:d2 brd ff:ff:ff:ff:ff:ff
+    inet 172.30.1.1/24 brd 172.30.1.255 scope global docker0
+       valid_lft forever preferred_lft forever
+root@ubuntuserverdemo:~#
+
+we can see that docker uses docker0 interface as a default bridge for containers. Now we need to point to different bridge for default bridge.
+
+1. Create a bridge interface. Command to run:
+root@ubuntuserverdemo:~# ip link add name mybridge0 type bridge
+root@ubuntuserverdemo:~#
+2. Assign IP address to newly created interface. Command to run:
+root@ubuntuserverdemo:~# ip a
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: enp0s3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 08:00:27:b8:22:b6 brd ff:ff:ff:ff:ff:ff
+    inet 10.0.2.15/24 brd 10.0.2.255 scope global dynamic enp0s3
+       valid_lft 86206sec preferred_lft 86206sec
+    inet6 fe80::a00:27ff:feb8:22b6/64 scope link 
+       valid_lft forever preferred_lft forever
+3: docker0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN group default 
+    link/ether 02:42:7c:24:e3:d2 brd ff:ff:ff:ff:ff:ff
+    inet 172.30.1.1/24 brd 172.30.1.255 scope global docker0
+       valid_lft forever preferred_lft forever
+4: mybridge0: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN group default qlen 1000
+    link/ether 3a:15:91:cf:a0:e1 brd ff:ff:ff:ff:ff:ff
+root@ubuntuserverdemo:~# 
+3. Bring the mybridge0 interface online. Command to run:
+root@ubuntuserverdemo:~# ip addr add 172.30.10.0/24 dev mybridge0
+root@ubuntuserverdemo:~# 
+4. To check the information about mybridge0 network interface. Command to run:
+root@ubuntuserverdemo:~# ip a
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: enp0s3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 08:00:27:b8:22:b6 brd ff:ff:ff:ff:ff:ff
+    inet 10.0.2.15/24 brd 10.0.2.255 scope global dynamic enp0s3
+       valid_lft 86190sec preferred_lft 86190sec
+    inet6 fe80::a00:27ff:feb8:22b6/64 scope link 
+       valid_lft forever preferred_lft forever
+3: docker0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN group default 
+    link/ether 02:42:7c:24:e3:d2 brd ff:ff:ff:ff:ff:ff
+    inet 172.30.1.1/24 brd 172.30.1.255 scope global docker0
+       valid_lft forever preferred_lft forever
+4: mybridge0: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN group default qlen 1000
+    link/ether 3a:15:91:cf:a0:e1 brd ff:ff:ff:ff:ff:ff
+    inet 172.30.10.0/24 scope global mybridge0
+       valid_lft forever preferred_lft forever
+root@ubuntuserverdemo:~# 
+root@ubuntuserverdemo:~# ip link set dev mybridge0 up
+root@ubuntuserverdemo:~# 
+root@ubuntuserverdemo:~# ip a
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: enp0s3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 08:00:27:b8:22:b6 brd ff:ff:ff:ff:ff:ff
+    inet 10.0.2.15/24 brd 10.0.2.255 scope global dynamic enp0s3
+       valid_lft 86174sec preferred_lft 86174sec
+    inet6 fe80::a00:27ff:feb8:22b6/64 scope link 
+       valid_lft forever preferred_lft forever
+3: docker0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN group default 
+    link/ether 02:42:7c:24:e3:d2 brd ff:ff:ff:ff:ff:ff
+    inet 172.30.1.1/24 brd 172.30.1.255 scope global docker0
+       valid_lft forever preferred_lft forever
+4: mybridge0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/ether 3a:15:91:cf:a0:e1 brd ff:ff:ff:ff:ff:ff
+    inet 172.30.10.0/24 scope global mybridge0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::3815:91ff:fecf:a0e1/64 scope link 
+       valid_lft forever preferred_lft forever
+root@ubuntuserverdemo:~# 
+5. Create daemon.json file in /etc/docker directory. (If not exists)
+6. If /etc/docker/daemon.json already exists then skip step5 and add the below json content to it
+root@ubuntuserverdemo:~# vi /etc/docker/daemon.json
+root@ubuntuserverdemo:~# 
+root@ubuntuserverdemo:~# systemctl restart docker
+root@ubuntuserverdemo:~#
+
+Now lets test by creating container to see if it picks IP address from new default bridge subnet.
+
+root@ubuntuserverdemo:~# docker run -d --name nginx --rm -p 8081:80 nginx:1.19-alpine
+Unable to find image 'nginx:1.19-alpine' locally
+1.19-alpine: Pulling from library/nginx
+df20fa9351a1: Pull complete 
+3db268b1fe8f: Pull complete 
+f682f0660e7a: Pull complete 
+7eb0e8838bc0: Pull complete 
+e8bf1226cc17: Pull complete 
+Digest: sha256:a97eb9ecc708c8aa715ccfb5e9338f5456e4b65575daf304f108301f3b497314
+Status: Downloaded newer image for nginx:1.19-alpine
+d8fecd3dc332cd7564c1cd2033905cef12fed26c28e4161126c7fa502c8c5270
+root@ubuntuserverdemo:~# 
+root@ubuntuserverdemo:~# docker ps
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                  NAMES
+d8fecd3dc332        nginx:1.19-alpine   "/docker-entrypoint.…"   27 seconds ago      Up 25 seconds       0.0.0.0:8081->80/tcp   nginx
+root@ubuntuserverdemo:~# docker container inspect --format "{{ .NetworkSettings.IPAddress }}" nginx 
+172.30.10.2
+root@ubuntuserverdemo:~# curl 172.30.10.2
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+    body {
+        width: 35em;
+        margin: 0 auto;
+        font-family: Tahoma, Verdana, Arial, sans-serif;
+    }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+root@ubuntuserverdemo:~# 
