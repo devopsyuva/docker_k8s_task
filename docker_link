@@ -1,0 +1,75 @@
+root@ubuntuserverdemo:~# docker ps -a
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+root@ubuntuserverdemo:~# 
+root@ubuntuserverdemo:~# docker container run -d -ti --name sourceserver ubuntu:18.04
+Unable to find image 'ubuntu:18.04' locally
+18.04: Pulling from library/ubuntu
+7595c8c21622: Pull complete 
+d13af8ca898f: Pull complete 
+70799171ddba: Pull complete 
+b6c12202c5ef: Pull complete 
+Digest: sha256:a61728f6128fb4a7a20efaa7597607ed6e69973ee9b9123e3b4fd28b7bba100b
+Status: Downloaded newer image for ubuntu:18.04
+db962d560077122aea3835ca75df552b6898db178dd1c577087d16317012d171
+root@ubuntuserverdemo:~# docker container ps
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+db962d560077        ubuntu:18.04        "/bin/bash"         11 seconds ago      Up 7 seconds                            sourceserver
+root@ubuntuserverdemo:~# 
+root@ubuntuserverdemo:~# docker container inspect --format "{{ .NetworkSettings.IPAddress }}" sourceserver 
+172.30.10.2
+root@ubuntuserverdemo:~# 
+
+root@ubuntuserverdemo:~# docker container run -d -ti --link sourceserver:ubuntuserver --name destserver ubuntu:18.04
+18f1cba540d02a96521555f263722f06f392ff2ab803d8fdd2f0e27dcd254d80
+root@ubuntuserverdemo:~# 
+root@ubuntuserverdemo:~# docker ps 
+CONTAINER ID        IMAGE               COMMAND             CREATED              STATUS              PORTS               NAMES
+18f1cba540d0        ubuntu:18.04        "/bin/bash"         5 seconds ago        Up 4 seconds                            destserver
+db962d560077        ubuntu:18.04        "/bin/bash"         About a minute ago   Up About a minute                       sourceserver
+root@ubuntuserverdemo:~# docker container inspect --format "{{ .NetworkSettings.IPAddress }}" destserver 
+172.30.10.3
+root@ubuntuserverdemo:~#
+
+root@ubuntuserverdemo:~# docker exec -ti destserver bash
+root@18f1cba540d0:/# 
+root@18f1cba540d0:/# apt update && apt install -y iproute2 iputils-ping
+
+Now we can see that on destserver contaner we have details related to sourceserver in /etc/hosts which means that we can reach the sourceserver using ip address and hostname/containername as well.
+
+root@18f1cba540d0:/# cat /etc/hosts
+127.0.0.1	localhost
+::1	localhost ip6-localhost ip6-loopback
+fe00::0	ip6-localnet
+ff00::0	ip6-mcastprefix
+ff02::1	ip6-allnodes
+ff02::2	ip6-allrouters
+172.30.10.2	ubuntuserver db962d560077 sourceserver
+172.30.10.3	18f1cba540d0
+root@18f1cba540d0:/# 
+root@18f1cba540d0:/# ping sourceserver
+PING ubuntuserver (172.30.10.2) 56(84) bytes of data.
+64 bytes from ubuntuserver (172.30.10.2): icmp_seq=1 ttl=64 time=0.129 ms
+64 bytes from ubuntuserver (172.30.10.2): icmp_seq=2 ttl=64 time=0.105 ms
+64 bytes from ubuntuserver (172.30.10.2): icmp_seq=3 ttl=64 time=0.104 ms
+^C
+--- ubuntuserver ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2025ms
+rtt min/avg/max/mdev = 0.104/0.112/0.129/0.016 ms
+root@18f1cba540d0:/# ping db962d560077
+PING ubuntuserver (172.30.10.2) 56(84) bytes of data.
+64 bytes from ubuntuserver (172.30.10.2): icmp_seq=1 ttl=64 time=0.076 ms
+64 bytes from ubuntuserver (172.30.10.2): icmp_seq=2 ttl=64 time=0.106 ms
+^C
+--- ubuntuserver ping statistics ---
+2 packets transmitted, 2 received, 0% packet loss, time 1027ms
+rtt min/avg/max/mdev = 0.076/0.091/0.106/0.015 ms
+root@18f1cba540d0:/# ping ubuntuserver
+PING ubuntuserver (172.30.10.2) 56(84) bytes of data.
+64 bytes from ubuntuserver (172.30.10.2): icmp_seq=1 ttl=64 time=0.073 ms
+64 bytes from ubuntuserver (172.30.10.2): icmp_seq=2 ttl=64 time=0.101 ms
+^X64 bytes from ubuntuserver (172.30.10.2): icmp_seq=3 ttl=64 time=0.104 ms
+^C
+--- ubuntuserver ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2038ms
+rtt min/avg/max/mdev = 0.073/0.092/0.104/0.017 ms
+root@18f1cba540d0:/#
